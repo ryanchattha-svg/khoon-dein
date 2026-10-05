@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Khoon Dein - Blood Donation, Rawalpindi & Islamabad</title>
+<style>
+:root{--red:#8c1c13;--green:#01411c;--paper:#faf6ef;--ink:#2b2220;--line:#e4d9c8;--card:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 "Segoe UI",Tahoma,sans-serif}
+header{background:var(--red);color:#fff;padding:14px 16px;position:relative}
+header h1{margin:0;font:700 26px Georgia,serif}
+header p{margin:2px 0 0;opacity:.85;font-size:14px}
+.flag{position:absolute;top:10px;right:12px;border:2px solid #fff;line-height:0;border-radius:2px}
+nav{display:flex;gap:4px;overflow-x:auto;background:#fff;border-bottom:1px solid var(--line);padding:0 8px;position:sticky;top:0;z-index:5}
+nav a{padding:12px 12px;color:var(--ink);text-decoration:none;font-size:14px;white-space:nowrap;border-bottom:3px solid transparent}
+nav a:hover{border-color:var(--red)}
+main{max-width:860px;margin:auto;padding:16px}
+section{margin:0 0 34px;scroll-margin-top:52px}
+h2{font:700 22px Georgia,serif;margin:0 0 4px;color:var(--red)}
+.sub{color:#6b5d57;margin:0 0 14px;font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
+label{display:block;font-size:13px;margin:10px 0 3px;color:#5b4d47}
+input,select{width:100%;padding:10px;border:1px solid #cdbfae;border-radius:6px;font:inherit;background:#fff}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chk{display:flex;gap:8px;align-items:flex-start;font-size:13px;margin-top:10px}
+.chk input{width:auto;margin-top:3px}
+.seg{display:flex;border:1px solid var(--red);border-radius:6px;overflow:hidden}
+.seg button{flex:1;padding:10px;border:0;background:#fff;color:var(--red);font-family:inherit;font-weight:600;font-size:15px;cursor:pointer}
+.seg button.on{background:var(--red);color:#fff}
+.go{margin-top:14px;width:100%;padding:12px;border:0;border-radius:6px;background:var(--green);color:#fff;font-family:inherit;font-weight:600;font-size:16px;cursor:pointer}
+.go:disabled{opacity:.6}
+.err{color:#b00020;font-size:14px;margin-top:8px;min-height:20px}
+.code{text-align:center;padding:18px 10px}
+.digits{font:700 54px/1 Georgia,serif;letter-spacing:12px;color:var(--green);margin:6px 0 8px}
+.hosp{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.hosp h3{margin:0;font-size:17px}
+.hosp small{color:#6b5d57}
+.btns a{display:inline-block;margin:6px 6px 0 0;padding:6px 11px;border:1px solid var(--red);border-radius:5px;color:var(--red);text-decoration:none;font-size:13px}
+.inv{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;min-width:230px;flex:1;max-width:330px}
+.inv span{border-radius:6px;text-align:center;padding:4px 0;font-size:13px;background:#e8f3ec}
+.inv span.mid{background:#fff1d6}.inv span.low{background:#fbdcd8}
+.inv b{display:block;font-size:12px}
+.note{font-size:12px;color:#7a6c65;margin-top:6px}
+.drow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}
+.drow:last-child{border:0}
+.pill{background:var(--red);color:#fff;border-radius:99px;padding:2px 10px;font-size:13px;font-weight:600}
+.call{color:var(--green);font-weight:600;text-decoration:none}
+.vch{border:2px dashed var(--red);border-radius:8px;padding:10px;margin-top:8px;display:flex;justify-content:space-between}
+.brands{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.brands span{background:#f0e7d8;border-radius:5px;padding:3px 9px;font-size:13px}
+footer{text-align:center;font-size:12px;color:#7a6c65;padding:20px 16px 30px}
+@media(max-width:480px){.row{grid-template-columns:1fr}.digits{font-size:44px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="flag"><svg viewBox="0 0 30 20" width="44" height="29"><rect width="30" height="20" fill="#01411c"/><rect width="7.5" height="20" fill="#fff"/><circle cx="19" cy="10" r="5.2" fill="#fff"/><circle cx="20.7" cy="9" r="4.4" fill="#01411c"/><path d="M22.4 6.2l.6 1.7h1.8l-1.4 1 .5 1.7-1.5-1-1.5 1 .5-1.7-1.4-1h1.8z" fill="#fff"/></svg></div>
+  <h1>Khoon Dein</h1>
+  <p>Give blood. Save a life. &nbsp;<span lang="ur">خون دیں، زندگی بچائیں</span></p>
+</header>
+<nav><a href="#code">Get fridge code</a><a href="#hospitals">Hospitals</a><a href="#donors">Donors</a><a href="#rewards">My rewards</a></nav>
+<main>
+
+<section id="code">
+  <h2>Get your fridge code</h2>
+  <p class="sub">Fill this in, get a 4-digit code, and type it on the blood fridge keypad. The code works once and expires in 10 minutes.</p>
+  <div class="card">
+    <div class="seg"><button id="bd" class="on" type="button">I want to donate</button><button id="br" type="button">I need blood</button></div>
+    <label>Full name</label><input id="name" autocomplete="name">
+    <div class="row">
+      <div><label>CNIC (13 digits)</label><input id="cnic" inputmode="numeric" placeholder="37405-1234567-1" maxlength="15"></div>
+      <div><label>Mobile number</label><input id="phone" inputmode="tel" placeholder="0300 1234567" maxlength="12"></div>
+    </div>
+    <div class="row">
+      <div><label>Blood group</label><select id="group"><option value="">Choose</option></select></div>
+      <div><label>Hospital</label><select id="hospital"></select></div>
+    </div>
+    <div id="donorChecks">
+      <label class="chk"><input type="checkbox" id="fit"> I am 18 or older and feel healthy today.</label>
+      <label class="chk"><input type="checkbox" id="share"> I allow my name and number to be shown on the Donors page so people in need can call me.</label>
+    </div>
+    <button class="go" id="go">Get my code</button>
+    <div class="err" id="err"></div>
+    <p class="note">Your CNIC is used only to verify you. It is stored as a one-way hash and never shown to anyone.</p>
+  </div>
+  <div class="card code" id="result" hidden>
+    <div>Your code</div><div class="digits" id="digits"></div>
+    <div id="resultNote"></div>
+  </div>
+</section>
+
+<section id="hospitals">
+  <h2>Hospitals &amp; blood stock</h2>
+  <p class="sub">Islamabad and Rawalpindi. Stock numbers below are sample data for the demo.</p>
+  <label style="margin-top:0">Show hospitals that have</label>
+  <select id="filter" style="max-width:200px;margin-bottom:12px"><option value="">Any blood group</option></select>
+  <div id="hlist"></div>
+  <p class="note">Phone numbers come from public listings and may have changed. Please confirm before travelling.</p>
+</section>
+
+<section id="donors">
+  <h2>Donors you can call</h2>
+  <p class="sub">People who donated through this site and chose to be listed.</p>
+  <div class="card" id="dlist">Loading...</div>
+</section>
+
+<section id="rewards">
+  <h2>My rewards</h2>
+  <p class="sub">Every donation through the fridge earns 100 points and a Rs 500 voucher code.</p>
+  <div class="card">
+    <div class="row"><div><label>Mobile number</label><input id="rp" inputmode="tel"></div><div><label>CNIC</label><input id="rc" inputmode="numeric"></div></div>
+    <button class="go" id="rgo">Show my points</button>
+    <div class="err" id="rerr"></div>
+    <div id="rout"></div>
+    <div class="note" style="margin-top:12px">Use vouchers at partner food chains in Rawalpindi:</div>
+    <div class="brands"><span>McDonald's</span><span>KFC</span><span>Hardee's</span><span>Pizza Hut</span><span>Cheezious</span></div>
+    <p class="note">Demo vouchers. They become redeemable only after a food chain agrees to take part.</p>
+  </div>
+</section>
+</main>
+<footer>Made in Pakistan &middot; School project &middot; Not a substitute for a licensed blood bank</footer>
+
+<script>
+const GROUPS=["A+","A-","B+","B-","O+","O-","AB+","AB-"];
+const H=[
+{n:"PIMS",c:"Islamabad",a:"G-8/3",p:"051-9260500",q:"PIMS Hospital Islamabad"},
+{n:"Shifa International Hospital",c:"Islamabad",a:"H-8/4",p:"051-8464646",q:"Shifa International Hospital Islamabad"},
+{n:"Kulsum International Hospital",c:"Islamabad",a:"Blue Area",p:"051-8446666",q:"Kulsum International Hospital Islamabad"},
+{n:"Maroof International Hospital",c:"Islamabad",a:"F-10 Markaz",p:"051-2222920",q:"Maroof International Hospital Islamabad"},
+{n:"Quaid-e-Azam International Hospital",c:"Islamabad",a:"H-13",p:"051-8449100",q:"Quaid-e-Azam International Hospital Islamabad"},
+{n:"CMH Rawalpindi",c:"Rawalpindi",a:"Saddar",p:"",q:"Combined Military Hospital Rawalpindi"},
+{n:"Holy Family Hospital",c:"Rawalpindi",a:"Satellite Town",p:"051-9290359",q:"Holy Family Hospital Rawalpindi"},
+{n:"Benazir Bhutto Hospital",c:"Rawalpindi",a:"Murree Road",p:"",q:"Benazir Bhutto Hospital Rawalpindi"},
+{n:"DHQ Hospital Rawalpindi",c:"Rawalpindi",a:"Kashmiri Bazaar",p:"051-5774225",q:"District Headquarters Hospital Rawalpindi"}
+];
+const $=id=>document.getElementById(id);
+let kind="donate";
+GROUPS.forEach(g=>{$("group").add(new Option(g,g));$("filter").add(new Option(g,g))});
+H.forEach(h=>$("hospital").add(new Option(h.n,h.n)));
+const stock=(i,j)=>((i*7+j*11+3)*5)%17+(j===5?0:1);
+function drawHosp(){
+  const f=$("filter").value;let out="";
+  H.forEach((h,i)=>{
+    if(f&&stock(i,GROUPS.indexOf(f))<2)return;
+    const tel=h.p?"+92"+h.p.replace(/\D/g,"").slice(1):"";
+    out+=`<div class="card hosp" style="margin-bottom:10px"><div><h3>${h.n}</h3><small>${h.a}, ${h.c}</small><div class="btns">${h.p?`<a href="tel:${tel}">Call ${h.p}</a>`:""}<a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.q)}">Open in Maps</a></div></div><div class="inv">${GROUPS.map((g,j)=>{const s=stock(i,j);return `<span class="${s<4?"low":s<9?"mid":""}"><b>${g}</b>${s}</span>`}).join("")}</div></div>`;
+  });
+  $("hlist").innerHTML=out||"<div class='card'>No hospital has this group right now.</div>";
+}
+$("filter").onchange=drawHosp;drawHosp();
+function setKind(k){kind=k;$("bd").classList.toggle("on",k==="donate");$("br").classList.toggle("on",k==="receive");$("donorChecks").hidden=k!=="donate"}
+$("bd").onclick=()=>setKind("donate");$("br").onclick=()=>setKind("receive");
+$("go").onclick=async()=>{
+  $("err").textContent="";$("go").disabled=true;
+  try{
+    const r=await fetch("/api/"+(kind==="donate"?"donate":"receive"),{method:"POST",body:JSON.stringify({name:$("name").value,cnic:$("cnic").value,phone:$("phone").value,group:$("group").value,hospital:$("hospital").value,fit:$("fit").checked,share:$("share").checked})});
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.error||"Something went wrong.");
+    $("digits").textContent=d.code;
+    $("resultNote").textContent=kind==="donate"?"Type this on the fridge keypad within "+d.minutes+" minutes. Place the blood bag inside. Your points arrive when the fridge accepts the code.":"Type this on the fridge keypad within "+d.minutes+" minutes to collect the blood.";
+    $("result").hidden=false;$("result").scrollIntoView({behavior:"smooth"});
+  }catch(e){$("err").textContent=e.message}
+  $("go").disabled=false;
+};
+async function loadDonors(){
+  try{
+    const d=await (await fetch("/api/donors")).json();
+    $("dlist").innerHTML=d.length?d.map(x=>`<div class="drow"><div><b>${esc(x.name)}</b><br><small>${esc(x.hospital||"")} &middot; ${x.count} donation${x.count>1?"s":""}</small></div><div style="text-align:right"><span class="pill">${esc(x.group)}</span><br><a class="call" href="tel:+92${x.phone.slice(1)}">${x.phone}</a></div></div>`).join(""):"No donors listed yet. Be the first.";
+  }catch(e){$("dlist").textContent="Could not load donors."}
+}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+loadDonors();
+$("rgo").onclick=async()=>{
+  $("rerr").textContent="";$("rout").innerHTML="";
+  const r=await fetch("/api/me",{method:"POST",body:JSON.stringify({phone:$("rp").value,cnic:$("rc").value})});
+  const d=await r.json();
+  if(!r.ok){$("rerr").textContent=d.error;return}
+  $("rout").innerHTML=`<p style="margin:12px 0 0"><b>${esc(d.name)}</b> &middot; ${d.points} points &middot; ${d.count} donation${d.count===1?"":"s"}</p>`+d.vouchers.map(v=>`<div class="vch"><b>${v.code}</b><span>Rs ${v.value} &middot; ${v.date}</span></div>`).join("");
+};
+</script>
+</body>
+</html>

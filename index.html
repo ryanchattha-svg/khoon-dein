@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Khoon Dein - Blood Donation, Rawalpindi & Islamabad</title>
 <style>
-:root{--red:#8c1c13;--green:#01411c;--paper:#faf6ef;--ink:#2b2220;--line:#e4d9c8;--card:#fff}
+:root{--red:#8c1c13;--green:#01411c;--paper:#faf6ef;--ink:#2b2220;--line:#e4d9c8}
 *{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 "Segoe UI",Tahoma,sans-serif}
 header{background:var(--red);color:#fff;padding:14px 16px;position:relative}
@@ -13,25 +13,27 @@ header h1{margin:0;font:700 26px Georgia,serif}
 header p{margin:2px 0 0;opacity:.85;font-size:14px}
 .flag{position:absolute;top:10px;right:12px;border:2px solid #fff;line-height:0;border-radius:2px}
 nav{display:flex;gap:4px;overflow-x:auto;background:#fff;border-bottom:1px solid var(--line);padding:0 8px;position:sticky;top:0;z-index:5}
-nav a{padding:12px 12px;color:var(--ink);text-decoration:none;font-size:14px;white-space:nowrap;border-bottom:3px solid transparent}
+nav a{padding:12px;color:var(--ink);text-decoration:none;font-size:14px;white-space:nowrap;border-bottom:3px solid transparent}
 nav a:hover{border-color:var(--red)}
 main{max-width:860px;margin:auto;padding:16px}
 section{margin:0 0 34px;scroll-margin-top:52px}
 h2{font:700 22px Georgia,serif;margin:0 0 4px;color:var(--red)}
 .sub{color:#6b5d57;margin:0 0 14px;font-size:14px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px}
 label{display:block;font-size:13px;margin:10px 0 3px;color:#5b4d47}
-input,select{width:100%;padding:10px;border:1px solid #cdbfae;border-radius:6px;font:inherit;background:#fff}
+input,select,textarea{width:100%;padding:10px;border:1px solid #cdbfae;border-radius:6px;font:inherit;background:#fff}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .chk{display:flex;gap:8px;align-items:flex-start;font-size:13px;margin-top:10px}
 .chk input{width:auto;margin-top:3px}
 .seg{display:flex;border:1px solid var(--red);border-radius:6px;overflow:hidden}
-.seg button{flex:1;padding:10px;border:0;background:#fff;color:var(--red);font-family:inherit;font-weight:600;font-size:15px;cursor:pointer}
+.seg button{flex:1;padding:10px 4px;border:0;background:#fff;color:var(--red);font-family:inherit;font-weight:600;font-size:14px;cursor:pointer}
 .seg button.on{background:var(--red);color:#fff}
 .go{margin-top:14px;width:100%;padding:12px;border:0;border-radius:6px;background:var(--green);color:#fff;font-family:inherit;font-weight:600;font-size:16px;cursor:pointer}
+.alt{background:#fff;color:var(--green);border:2px solid var(--green);margin-top:12px}
 .go:disabled{opacity:.6}
 .err{color:#b00020;font-size:14px;margin-top:8px;min-height:20px}
-.code{text-align:center;padding:18px 10px}
+.ok{color:var(--green);font-size:14px;margin-top:8px}
+.code{text-align:center;padding:18px 10px;margin-top:12px}
 .digits{font:700 54px/1 Georgia,serif;letter-spacing:12px;color:var(--green);margin:6px 0 8px}
 .hosp{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
 .hosp h3{margin:0;font-size:17px}
@@ -59,14 +61,17 @@ footer{text-align:center;font-size:12px;color:#7a6c65;padding:20px 16px 30px}
   <h1>Khoon Dein</h1>
   <p>Give blood. Save a life. &nbsp;<span lang="ur">خون دیں، زندگی بچائیں</span></p>
 </header>
-<nav><a href="#code">Get fridge code</a><a href="#hospitals">Hospitals</a><a href="#donors">Donors</a><a href="#rewards">My rewards</a></nav>
+<nav><a href="#start">Get started</a><a href="#hospitals">Hospitals</a><a href="#donors">Donors</a><a href="#rewards">My rewards</a></nav>
 <main>
 
-<section id="code">
-  <h2>Get your fridge code</h2>
-  <p class="sub">Fill this in, get a 4-digit code, and type it on the blood fridge keypad. The code works once and expires in 10 minutes.</p>
+<section id="start">
+  <h2>How can we help?</h2>
+  <p class="sub">Pick a service. Fridge services give you a 4-digit code to type on the blood fridge keypad.</p>
   <div class="card">
-    <div class="seg"><button id="bd" class="on" type="button">I want to donate</button><button id="br" type="button">I need blood</button></div>
+    <div class="seg"><button data-m="donate" class="on" type="button">Donate at fridge</button><button data-m="pickup" type="button">Donate at home</button><button data-m="receive" type="button">I need blood</button></div>
+    <p class="note" id="modeNote"></p>
+    <button class="go alt" id="scan" type="button" style="margin-top:0">Scan my card to fill my details</button>
+    <div class="ok" id="scanMsg"></div>
     <label>Full name</label><input id="name" autocomplete="name">
     <div class="row">
       <div><label>CNIC (13 digits)</label><input id="cnic" inputmode="numeric" placeholder="37405-1234567-1" maxlength="15"></div>
@@ -76,26 +81,30 @@ footer{text-align:center;font-size:12px;color:#7a6c65;padding:20px 16px 30px}
       <div><label>Blood group</label><select id="group"><option value="">Choose</option></select></div>
       <div><label>Hospital</label><select id="hospital"></select></div>
     </div>
+    <div id="pickupBox" hidden>
+      <label>Home address</label><textarea id="addr" rows="2" placeholder="House, street, sector, city"></textarea>
+      <label>Preferred pickup time</label>
+      <select id="when"><option value="">Choose</option><option>Today, evening</option><option>Tomorrow, morning</option><option>Tomorrow, evening</option><option>This weekend</option></select>
+    </div>
     <div id="donorChecks">
       <label class="chk"><input type="checkbox" id="fit"> I am 18 or older and feel healthy today.</label>
       <label class="chk"><input type="checkbox" id="share"> I allow my name and number to be shown on the Donors page so people in need can call me.</label>
     </div>
-    <button class="go" id="go">Get my code</button>
+    <button class="go" id="go">Continue</button>
     <div class="err" id="err"></div>
     <p class="note">Your CNIC is used only to verify you. It is stored as a one-way hash and never shown to anyone.</p>
   </div>
-  <div class="card code" id="result" hidden>
-    <div>Your code</div><div class="digits" id="digits"></div>
-    <div id="resultNote"></div>
-  </div>
+  <div class="card code" id="result" hidden></div>
 </section>
 
 <section id="hospitals">
-  <h2>Hospitals &amp; blood stock</h2>
-  <p class="sub">Islamabad and Rawalpindi. Stock numbers below are sample data for the demo.</p>
+  <h2>Hospitals &amp; live blood stock</h2>
+  <p class="sub">Islamabad and Rawalpindi. Stock changes when the fridge accepts a donation or hands out blood. Starting numbers are sample data.</p>
   <label style="margin-top:0">Show hospitals that have</label>
   <select id="filter" style="max-width:200px;margin-bottom:12px"><option value="">Any blood group</option></select>
-  <div id="hlist"></div>
+  <div id="hlist">Loading...</div>
+  <h3 style="margin:20px 0 8px;font:700 18px Georgia,serif;color:#8c1c13">Laboratories for blood tests</h3>
+  <div id="lablist"></div>
   <p class="note">Phone numbers come from public listings and may have changed. Please confirm before travelling.</p>
 </section>
 
@@ -107,77 +116,129 @@ footer{text-align:center;font-size:12px;color:#7a6c65;padding:20px 16px 30px}
 
 <section id="rewards">
   <h2>My rewards</h2>
-  <p class="sub">Every donation through the fridge earns 100 points and a Rs 500 voucher code.</p>
+  <p class="sub">Every completed donation (fridge or home pickup) earns 100 points. Spend points on a restaurant or pharmacy deal.</p>
   <div class="card">
     <div class="row"><div><label>Mobile number</label><input id="rp" inputmode="tel"></div><div><label>CNIC</label><input id="rc" inputmode="numeric"></div></div>
     <button class="go" id="rgo">Show my points</button>
     <div class="err" id="rerr"></div>
     <div id="rout"></div>
-    <div class="note" style="margin-top:12px">Use vouchers at partner food chains in Rawalpindi:</div>
-    <div class="brands"><span>McDonald's</span><span>KFC</span><span>Hardee's</span><span>Pizza Hut</span><span>Cheezious</span></div>
-    <p class="note">Demo vouchers. They become redeemable only after a food chain agrees to take part.</p>
+    <div class="note" style="margin-top:14px">Spend your points (fill your number and CNIC above first):</div>
+    <div id="offers">Loading...</div>
+    <p class="note">Demo offers. They become redeemable only after the restaurants and pharmacies agree to take part.</p>
   </div>
 </section>
 </main>
 <footer>Made in Pakistan &middot; School project &middot; Not a substitute for a licensed blood bank</footer>
 
 <script>
-const GROUPS=["A+","A-","B+","B-","O+","O-","AB+","AB-"];
-const H=[
-{n:"PIMS",c:"Islamabad",a:"G-8/3",p:"051-9260500",q:"PIMS Hospital Islamabad"},
-{n:"Shifa International Hospital",c:"Islamabad",a:"H-8/4",p:"051-8464646",q:"Shifa International Hospital Islamabad"},
-{n:"Kulsum International Hospital",c:"Islamabad",a:"Blue Area",p:"051-8446666",q:"Kulsum International Hospital Islamabad"},
-{n:"Maroof International Hospital",c:"Islamabad",a:"F-10 Markaz",p:"051-2222920",q:"Maroof International Hospital Islamabad"},
-{n:"Quaid-e-Azam International Hospital",c:"Islamabad",a:"H-13",p:"051-8449100",q:"Quaid-e-Azam International Hospital Islamabad"},
-{n:"CMH Rawalpindi",c:"Rawalpindi",a:"Saddar",p:"",q:"Combined Military Hospital Rawalpindi"},
-{n:"Holy Family Hospital",c:"Rawalpindi",a:"Satellite Town",p:"051-9290359",q:"Holy Family Hospital Rawalpindi"},
-{n:"Benazir Bhutto Hospital",c:"Rawalpindi",a:"Murree Road",p:"",q:"Benazir Bhutto Hospital Rawalpindi"},
-{n:"DHQ Hospital Rawalpindi",c:"Rawalpindi",a:"Kashmiri Bazaar",p:"051-5774225",q:"District Headquarters Hospital Rawalpindi"}
-];
+const G=["A+","A-","B+","B-","O+","O-","AB+","AB-"];
+const NOTES={donate:"Get a code, then type it on the fridge keypad and place your blood bag inside.",pickup:"Book a home visit. Our rider brings a cold box and takes your blood to the hospital.",receive:"Get a code to collect blood from the fridge. Only shown if your group is in stock."};
 const $=id=>document.getElementById(id);
-let kind="donate";
-GROUPS.forEach(g=>{$("group").add(new Option(g,g));$("filter").add(new Option(g,g))});
-H.forEach(h=>$("hospital").add(new Option(h.n,h.n)));
-const stock=(i,j)=>((i*7+j*11+3)*5)%17+(j===5?0:1);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let mode="donate",H=[],S={},L=[];
+async function api(p,b){
+  const r=await fetch("/api/"+p,b?{method:"POST",body:JSON.stringify(b)}:{});
+  const d=await r.json().catch(()=>({error:"Server error. Try again."}));
+  if(!r.ok)throw new Error(d.error||"Something went wrong.");
+  return d;
+}
+G.forEach(g=>{$("group").add(new Option(g,g));$("filter").add(new Option(g,g))});
+function setMode(m){
+  mode=m;
+  document.querySelectorAll(".seg button").forEach(b=>b.classList.toggle("on",b.dataset.m===m));
+  $("pickupBox").hidden=m!=="pickup";$("donorChecks").hidden=m==="receive";
+  $("modeNote").textContent=NOTES[m];
+  $("go").textContent=m==="pickup"?"Book home pickup":"Get my code";
+  $("result").hidden=true;
+}
+document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>setMode(b.dataset.m));
+setMode("donate");
+
 function drawHosp(){
   const f=$("filter").value;let out="";
-  H.forEach((h,i)=>{
-    if(f&&stock(i,GROUPS.indexOf(f))<2)return;
+  H.forEach(h=>{
+    const st=S[h.n]||{};
+    if(f&&(st[f]||0)<1)return;
     const tel=h.p?"+92"+h.p.replace(/\D/g,"").slice(1):"";
-    out+=`<div class="card hosp" style="margin-bottom:10px"><div><h3>${h.n}</h3><small>${h.a}, ${h.c}</small><div class="btns">${h.p?`<a href="tel:${tel}">Call ${h.p}</a>`:""}<a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.q)}">Open in Maps</a></div></div><div class="inv">${GROUPS.map((g,j)=>{const s=stock(i,j);return `<span class="${s<4?"low":s<9?"mid":""}"><b>${g}</b>${s}</span>`}).join("")}</div></div>`;
+    out+=`<div class="card hosp" style="margin-bottom:10px"><div><h3>${esc(h.n)}</h3><small>${esc([h.a,h.c].filter(Boolean).join(", "))}</small><div class="btns">${h.p?`<a href="tel:${tel}">Call ${esc(h.p)}</a>`:""}<a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.q)}">Open in Maps</a></div></div><div class="inv">${G.map(g=>{const s=st[g]||0;return `<span class="${s<4?"low":s<9?"mid":""}"><b>${g}</b>${s}</span>`}).join("")}</div></div>`;
   });
   $("hlist").innerHTML=out||"<div class='card'>No hospital has this group right now.</div>";
 }
-$("filter").onchange=drawHosp;drawHosp();
-function setKind(k){kind=k;$("bd").classList.toggle("on",k==="donate");$("br").classList.toggle("on",k==="receive");$("donorChecks").hidden=k!=="donate"}
-$("bd").onclick=()=>setKind("donate");$("br").onclick=()=>setKind("receive");
+function drawLabs(){
+  $("lablist").innerHTML=L.map(l=>`<div class="card hosp" style="margin-bottom:8px;align-items:center"><div><b>${esc(l.n)}</b></div><div class="btns"><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l.q)}">Open in Maps</a></div></div>`).join("");
+}
+async function loadHosp(){
+  try{
+    const d=await api("hospitals");H=d.hospitals;S=d.stock;L=d.labs||[];drawLabs();
+    if(!$("hospital").options.length)H.forEach(h=>$("hospital").add(new Option(h.n,h.n)));
+    drawHosp();
+  }catch(e){$("hlist").textContent="Could not load hospitals."}
+}
+$("filter").onchange=drawHosp;loadHosp();
+
 $("go").onclick=async()=>{
   $("err").textContent="";$("go").disabled=true;
   try{
-    const r=await fetch("/api/"+(kind==="donate"?"donate":"receive"),{method:"POST",body:JSON.stringify({name:$("name").value,cnic:$("cnic").value,phone:$("phone").value,group:$("group").value,hospital:$("hospital").value,fit:$("fit").checked,share:$("share").checked})});
-    const d=await r.json();
-    if(!r.ok)throw new Error(d.error||"Something went wrong.");
-    $("digits").textContent=d.code;
-    $("resultNote").textContent=kind==="donate"?"Type this on the fridge keypad within "+d.minutes+" minutes. Place the blood bag inside. Your points arrive when the fridge accepts the code.":"Type this on the fridge keypad within "+d.minutes+" minutes to collect the blood.";
+    const b={name:$("name").value,cnic:$("cnic").value,phone:$("phone").value,group:$("group").value,hospital:$("hospital").value,fit:$("fit").checked,share:$("share").checked};
+    if(mode==="pickup"){b.address=$("addr").value;b.when=$("when").value}
+    const d=await api(mode,b);
+    $("result").innerHTML=d.code
+      ?`<div>Your code</div><div class="digits">${d.code}</div><div>Type this on the fridge keypad and press <b>#</b> within ${d.minutes} minutes. ${mode==="donate"?"Place your blood bag inside. Your points arrive when the fridge accepts the code.":"The door opens for 20 seconds."}</div>`
+      :`<div>Booking confirmed</div><div class="digits" style="letter-spacing:4px">${d.id}</div><div>Pickup: ${esc(d.when)}. Our rider will call you before arriving. Keep this number. You earn 100 points and a voucher once the blood is collected.</div>`;
     $("result").hidden=false;$("result").scrollIntoView({behavior:"smooth"});
+    loadHosp();
   }catch(e){$("err").textContent=e.message}
   $("go").disabled=false;
 };
+
+// Scan through NFC card (the fridge reader sends the card to the server)
+$("scan").onclick=async()=>{
+  $("scanMsg").style.color="";$("scanMsg").textContent="Tap your card on the fridge reader now...";
+  try{await api("scan/start",{})}catch(e){$("scanMsg").textContent=e.message;return}
+  let n=0;
+  const t=setInterval(async()=>{
+    n++;
+    try{
+      const s=await api("scan");
+      if(s.state==="done"){
+        clearInterval(t);
+        $("name").value=s.card.name;$("cnic").value=s.card.cnic;$("phone").value=s.card.phone;$("group").value=s.card.group;
+        $("scanMsg").textContent="Card read. Your details are filled in.";
+      }else if(s.state!=="waiting"||n>42){clearInterval(t);$("scanMsg").style.color="#b00020";$("scanMsg").textContent="No card detected. Press the button and try again."}
+    }catch(e){}
+  },1500);
+};
+
 async function loadDonors(){
   try{
-    const d=await (await fetch("/api/donors")).json();
-    $("dlist").innerHTML=d.length?d.map(x=>`<div class="drow"><div><b>${esc(x.name)}</b><br><small>${esc(x.hospital||"")} &middot; ${x.count} donation${x.count>1?"s":""}</small></div><div style="text-align:right"><span class="pill">${esc(x.group)}</span><br><a class="call" href="tel:+92${x.phone.slice(1)}">${x.phone}</a></div></div>`).join(""):"No donors listed yet. Be the first.";
+    const d=await api("donors");
+    $("dlist").innerHTML=d.length?d.map(x=>`<div class="drow"><div><b>${esc(x.name)}</b><br><small>${esc(x.hospital||"")} &middot; ${x.count} donation${x.count>1?"s":""}</small></div><div style="text-align:right"><span class="pill">${esc(x.group)}</span><br><a class="call" href="tel:+92${x.phone.slice(1)}">${esc(x.phone)}</a></div></div>`).join(""):"No donors listed yet. Be the first.";
   }catch(e){$("dlist").textContent="Could not load donors."}
 }
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 loadDonors();
-$("rgo").onclick=async()=>{
+
+async function showMe(){
   $("rerr").textContent="";$("rout").innerHTML="";
-  const r=await fetch("/api/me",{method:"POST",body:JSON.stringify({phone:$("rp").value,cnic:$("rc").value})});
-  const d=await r.json();
-  if(!r.ok){$("rerr").textContent=d.error;return}
-  $("rout").innerHTML=`<p style="margin:12px 0 0"><b>${esc(d.name)}</b> &middot; ${d.points} points &middot; ${d.count} donation${d.count===1?"":"s"}</p>`+d.vouchers.map(v=>`<div class="vch"><b>${v.code}</b><span>Rs ${v.value} &middot; ${v.date}</span></div>`).join("");
-};
+  try{
+    const d=await api("me",{phone:$("rp").value,cnic:$("rc").value});
+    $("rout").innerHTML=`<p style="margin:12px 0 0"><b>${esc(d.name)}</b> &middot; ${d.points} points &middot; ${d.count} donation${d.count===1?"":"s"}</p>`
+      +d.vouchers.map(v=>`<div class="vch"><b>${v.code}</b><span>${esc(v.title||("Rs "+v.value))} &middot; ${v.date}</span></div>`).join("")
+      +(d.pickups.length?`<p class="note" style="margin-top:12px">Home pickups</p>`+d.pickups.map(p=>`<div class="drow"><span>${p.id} &middot; ${esc(p.when)}</span><span class="pill">${p.status}</span></div>`).join(""):"");
+  }catch(e){$("rerr").textContent=e.message}
+}
+$("rgo").onclick=showMe;
+async function loadOffers(){
+  try{
+    const o=await api("offers");
+    $("offers").innerHTML=o.map(x=>`<div class="drow"><div><b>${esc(x.title)}</b><br><small>${esc(x.type)} &middot; ${x.cost} points</small></div><button class="go" style="width:auto;margin:0;padding:8px 14px" onclick="redeem('${x.id}')">Redeem</button></div>`).join("");
+  }catch(e){$("offers").textContent="Could not load offers."}
+}
+async function redeem(id){
+  $("rerr").textContent="";
+  try{await api("redeem",{phone:$("rp").value,cnic:$("rc").value,offer:id});await showMe();$("rout").scrollIntoView({behavior:"smooth"})}
+  catch(e){$("rerr").textContent=e.message}
+}
+loadOffers();
 </script>
 </body>
 </html>

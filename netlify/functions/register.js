@@ -1,38 +1,56 @@
-// Admin only: list (GET), add/update (POST), remove (DELETE ?uid=) NFC cards.
-import { db, json, clean, digits, cleanUid, adminOk, getCards, BLOODS } from "./lib/util.js";
+import { getStore } from "@netlify/blobs";
 
 export default async (req) => {
-  if (!adminOk(req)) return json({ error: "Wrong admin key." }, 401);
-  const d = db();
-  const cards = await getCards(d);
+    if (req.method !== "POST") {
+        return new Response(JSON.stringify({ error: "POST only" }), { status: 405 });
+    }
 
-  if (req.method === "GET") {
-    const lastUnknown = await d.get("lastunknown", { type: "json" });
-    const log = (await d.get("log", { type: "json" })) || [];
-    return json({ cards: Object.values(cards), lastUnknown, log });
-  }
-  if (req.method === "POST") {
-    const b = await req.json().catch(() => ({}));
-    const uid = cleanUid(b.uid);
-    const name = clean(b.name);
-    const cnic = digits(b.cnic);
-    const phone = digits(b.phone);
-    if (uid.length < 8) return json({ error: "UID must be at least 8 hex characters." }, 400);
-    if (name.length < 3) return json({ error: "Enter the full name." }, 400);
-    if (cnic.length !== 13) return json({ error: "CNIC must be 13 digits." }, 400);
-    if (!/^03\d{9}$/.test(phone)) return json({ error: "Phone must look like 03001234567." }, 400);
-    if (!BLOODS.includes(b.blood)) return json({ error: "Choose a blood group." }, 400);
-    cards[uid] = { uid, name, cnic, phone, blood: b.blood, added: Date.now() };
-    await d.setJSON("cards", cards);
-    return json({ ok: true });
-  }
-  if (req.method === "DELETE") {
-    const uid = cleanUid(new URL(req.url).searchParams.get("uid"));
-    if (!cards[uid]) return json({ error: "Card not found." }, 404);
-    delete cards[uid];
-    await d.setJSON("cards", cards);
-    await d.delete("code:" + uid);
-    return json({ ok: true });
-  }
-  return json({ error: "Method not allowed" }, 405);
+    try {
+        const authHeader = req.headers.get("authorization") || "";
+        const token = authHeader.replace("Bearer ", "").trim();
+        const DEVICE_KEY = process.env.DEVICE_KEY || "mK29xPq7vL4tR8wZ";
+
+        if (token !== DEVICE_KEY) {
+            return new Response(JSON.stringify({ error: "Unauthorized access" }), { status: 401 });
+        }
+
+        const body = await req.json().catch(() => ({}));
+        const uid = body.uid ? body.uid.trim().toUpperCase() : "";
+        const name = body.name ? body.name.trim() : "";
+        const cnic = body.cnic ? body.cnic.replace(/\D/g, "") : "";
+        const mobile = body.mobile ? body.mobile.replace(/\D/g, "") : (body.phone ? body.phone.replace(/\D/g, "") : "");
+        const bloodGroup = body.bloodGroup ? body.bloodGroup.trim() : (body.blood ? body.blood.trim() : "");
+
+        if (!uid || uid.length < 8) {
+            return new Response(JSON.stringify({ error: "Valid Card UID required." }), { status: 400 });
+        }
+        if (!name) {
+            return new Response(JSON.stringify({ error: "Name required." }), { status: 400 });
+        }
+        if (cnic.length !== 13) {
+            return new Response(JSON.stringify({ error: "13-digit CNIC required." }), { status: 400 });
+        }
+
+        const cardsStore = getStore("cards");
+        
+        // Save card details with explicit keys matching issue.js lookup
+        const cardRecord = {
+            uid: uid,
+            name: name,
+            cnic: cnic,
+            mobile: mobile,
+            bloodGroup: bloodGroup,
+            registeredAt: Date.now()
+        };
+
+        await cardsStore.set(uid, JSON.stringify(cardRecord));
+
+        return new Response(JSON.stringify({ success: true, message: "Card registered successfully!" }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" }
+        });
+
+    } catch (err) {
+        return new Response(JSON.stringify({ error: "Server error: " + err.message }), { status: 500 });
+    }
 };

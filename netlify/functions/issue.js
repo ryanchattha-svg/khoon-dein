@@ -24,10 +24,17 @@ export default async (req) => {
         for (const blob of list.blobs) {
             const rawData = await cardsStore.get(blob.key);
             if (!rawData) continue;
-            const card = JSON.parse(rawData);
             
-            // Check all possible field variations where CNIC might be stored
-            const storedCnic = (card.cnic || card.idCard || card.cnicNumber || "").replace(/\D/g, "");
+            let card;
+            try {
+                card = JSON.parse(rawData);
+            } catch (e) {
+                continue;
+            }
+
+            // Check all possible locations where CNIC might be stored in the object
+            const storedCnic = (card.cnic || card.idCard || card.cnicNumber || card.id || "").toString().replace(/\D/g, "");
+            
             if (storedCnic === cnic) {
                 matchedUid = blob.key;
                 break;
@@ -35,7 +42,7 @@ export default async (req) => {
         }
 
         if (!matchedUid) {
-            return new Response(JSON.stringify({ error: "This CNIC is not registered in the system. Go to /admin and re-register your card." }), { status: 400 });
+            return new Response(JSON.stringify({ error: "This CNIC is not registered. Please re-register in /admin." }), { status: 400 });
         }
 
         // Generate safe 4-digit code using: 1, 2, 4, 5, 7, 8

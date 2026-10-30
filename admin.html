@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Admin - Blood Fridge</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#faf6ef;color:#2b2220;font:16px/1.5 "Segoe UI",Tahoma,sans-serif}
+header{background:#8c1c13;color:#fff;padding:14px 16px}header h1{margin:0;font:700 22px Georgia,serif}
+main{max-width:760px;margin:auto;padding:16px}h2{font:700 19px Georgia,serif;color:#8c1c13;margin:0 0 8px}
+.card{background:#fff;border:1px solid #e4d9c8;border-radius:10px;padding:14px;margin-bottom:16px}
+label{display:block;font-size:13px;margin:8px 0 3px;color:#5b4d47}
+input,select{width:100%;padding:10px;border:1px solid #cdbfae;border-radius:6px;font:inherit}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{padding:10px 14px;border:0;border-radius:6px;font:inherit;font-weight:600;cursor:pointer;margin-top:10px}
+.go{background:#01411c;color:#fff}.no{background:#fff;color:#8c1c13;border:1px solid #8c1c13;margin:0;padding:5px 10px}
+.err{color:#b00020;font-size:14px;margin-top:6px;min-height:20px}.ok{color:#01411c;font-size:14px}
+.r{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #e4d9c8}.r:last-child{border:0}
+small{color:#7a6c65}code{background:#f0e7d8;padding:1px 6px;border-radius:4px}
+@media(max-width:480px){.row{grid-template-columns:1fr}}
+</style></head>
+<body><header><h1>Blood Fridge - Admin</h1></header>
+<main>
+  <div class="card" id="login">
+    <h2>Admin login</h2>
+    <label>Admin key</label><input id="key" type="password" autocomplete="current-password">
+    <button class="go" id="enter">Open admin panel</button><div class="err" id="lerr"></div>
+  </div>
+  <div id="panel" hidden>
+    <div class="card" id="unknownBox" hidden>
+      <h2>Last unknown card tapped</h2>
+      <div><code id="unk"></code> <small id="unkTime"></small></div>
+      <button class="go" id="useUnk">Use this UID below</button>
+    </div>
+    <div class="card">
+      <h2>Register a card</h2>
+      <label>Card UID</label><input id="uid" placeholder="04C96696DE2A81" maxlength="20">
+      <div class="row"><div><label>Full name</label><input id="name"></div><div><label>CNIC (13 digits)</label><input id="cnic" inputmode="numeric"></div></div>
+      <div class="row"><div><label>Mobile</label><input id="phone" inputmode="tel" placeholder="03001234567"></div><div><label>Blood group</label><select id="blood"></select></div></div>
+      <button class="go" id="add">Save card</button><div class="err" id="err"></div>
+    </div>
+    <div class="card"><h2>Registered cards</h2><div id="cards">Loading...</div></div>
+    <div class="card"><h2>Recent activity</h2><div id="log"></div></div>
+  </div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+["A+","A-","B+","B-","O+","O-","AB+","AB-"].forEach(g=>$("blood").add(new Option(g,g)));
+let KEY=sessionStorage.getItem("fk")||"",unk="";
+async function call(method,path,body){
+  const r=await fetch(path,{method,headers:{"x-admin-key":KEY,"content-type":"application/json"},body:body?JSON.stringify(body):undefined});
+  const d=await r.json().catch(()=>({error:"Server error"}));
+  if(!r.ok)throw new Error(d.error||"Failed");
+  return d;
+}
+async function load(){
+  const d=await call("GET","/api/register");
+  $("login").hidden=true;$("panel").hidden=false;
+  $("cards").innerHTML=d.cards.length?d.cards.map(c=>`<div class="r"><div><b>${esc(c.name)}</b> <small>${esc(c.blood)}</small><br><small><code>${esc(c.uid)}</code> &middot; CNIC ****${esc(c.cnic.slice(-4))} &middot; ${esc(c.phone)}</small></div><button class="no" onclick="del('${esc(c.uid)}')">Remove</button></div>`).join(""):"No cards registered yet.";
+  unk=d.lastUnknown?d.lastUnknown.uid:"";
+  $("unknownBox").hidden=!unk;
+  if(unk){$("unk").textContent=unk;$("unkTime").textContent=new Date(d.lastUnknown.at).toLocaleString()}
+  $("log").innerHTML=d.log.length?d.log.map(l=>`<div class="r"><span>${esc(l.name||l.uid)} &middot; ${esc(l.result)}</span><small>${new Date(l.t).toLocaleString()}</small></div>`).join(""):"No activity yet.";
+}
+async function enter(){
+  KEY=$("key").value||KEY;$("lerr").textContent="";
+  try{await load();sessionStorage.setItem("fk",KEY)}catch(e){$("lerr").textContent=e.message}
+}
+$("enter").onclick=enter;
+$("useUnk").onclick=()=>{$("uid").value=unk;$("name").focus()};
+$("uid").oninput=e=>{e.target.value=e.target.value.replace(/[^0-9a-fA-F]/g,"").toUpperCase()};
+$("add").onclick=async()=>{
+  $("err").textContent="";
+  try{
+    await call("POST","/api/register",{uid:$("uid").value,name:$("name").value,cnic:$("cnic").value,phone:$("phone").value,blood:$("blood").value});
+    ["uid","name","cnic","phone"].forEach(i=>$(i).value="");await load();
+  }catch(e){$("err").textContent=e.message}
+};
+async function del(uid){
+  if(!confirm("Remove this card?"))return;
+  try{await call("DELETE","/api/register?uid="+encodeURIComponent(uid));await load()}catch(e){$("err").textContent=e.message}
+}
+if(KEY)enter();
+</script></body></html>

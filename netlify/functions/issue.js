@@ -10,8 +10,8 @@ export default async (req) => {
         const body = await req.json().catch(() => ({}));
         const name = body.name ? body.name.trim() : "";
         const cnic = body.cnic ? body.cnic.replace(/\D/g, "") : "";
-        const mobile = body.phone ? body.phone.replace(/\D/g, "") : "";
-        const bloodGroup = body.blood ? body.blood.trim() : "";
+        const mobile = body.mobile ? body.mobile.replace(/\D/g, "") : "";
+        const bloodGroup = body.bloodGroup ? body.bloodGroup.trim() : "";
 
         if (!name || name.length < 3) {
             return new Response(JSON.stringify({ error: "Enter your full name." }), { status: 400 });

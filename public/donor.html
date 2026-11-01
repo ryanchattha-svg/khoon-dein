@@ -1,0 +1,22 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Donor Portal</title><link rel="stylesheet" href="style.css"></head><body>
+<h1>❤️ Donor Portal</h1><nav><a href="index.html">Access</a><a href="hospital.html">Hospitals</a></nav>
+<section><h2>Register as donor</h2><form id="r"><input name="name" placeholder="Full name" required><input name="cnic" placeholder="CNIC" inputmode="numeric" required>
+<input name="mobile" placeholder="Mobile" required><select name="bloodGroup" class="bg"></select><input name="city" placeholder="City"><button>Register</button></form><div id="m1" class="msg"></div></section>
+<section><h2>Appointments & history</h2><form id="p"><input name="cnic" placeholder="CNIC" required><input name="mobile" placeholder="Mobile" required>
+<div class="row"><input name="date" type="date"><input name="hospitalId" placeholder="Hospital ID"></div>
+<div class="row"><button type="button" id="book">Book</button><button type="button" id="hist">History</button></div></form><div id="m2" class="msg"></div><pre id="h" class="msg"></pre></section>
+<section><h2>Home blood delivery</h2><form id="d"><input name="name" placeholder="Patient name" required><input name="cnic" placeholder="CNIC" required><input name="mobile" placeholder="Mobile" required>
+<div class="row"><select name="bloodGroup" class="bg"></select><input name="units" type="number" min="1" max="10" value="1"></div>
+<textarea name="address" placeholder="Full delivery address" required></textarea><label><input type="checkbox" name="urgent" style="width:auto"> Urgent</label><button>Request delivery</button></form><div id="m3" class="msg"></div>
+<input id="tid" placeholder="Tracking ID"><button type="button" id="track">Track</button><div id="m4" class="msg"></div></section>
+<script src="app.js"></script><script>
+$("#r").addEventListener("submit", async (e) => { e.preventDefault(); try { await post("/api/donors", { action: "register", ...form("#r") }); say($("#m1"), "Registered. Thank you!", true); } catch (er) { say($("#m1"), er.message, false); } });
+const pf = () => form("#p");
+$("#book").onclick = async () => { try { const r = await post("/api/donors", { action: "appointment", ...pf() }); say($("#m2"), "Booked. Ref " + r.appointment.id, true); } catch (er) { say($("#m2"), er.message, false); } };
+$("#hist").onclick = async () => { try { const r = await post("/api/donors", { action: "history", ...pf() });
+  $("#h").textContent = `${r.name} (${r.bloodGroup})\nDonations: ${r.donations.length}\n` + r.appointments.map((a) => `${a.date} @ ${a.hospitalId} — ${a.status}`).join("\n"); say($("#m2"), "", true); } catch (er) { say($("#m2"), er.message, false); } };
+$("#d").addEventListener("submit", async (e) => { e.preventDefault(); const f = form("#d"); f.urgent = $("#d [name=urgent]").checked;
+  try { const r = await post("/api/deliveries", f); say($("#m3"), "Requested. Tracking ID: " + r.trackingId, true); } catch (er) { say($("#m3"), er.message, false); } });
+$("#track").onclick = async () => { try { const r = await api("/api/deliveries?id=" + encodeURIComponent($("#tid").value.trim().toUpperCase())); say($("#m4"), `Status: ${r.status}`, true); } catch (er) { say($("#m4"), er.message, false); } };
+</script></body></html>

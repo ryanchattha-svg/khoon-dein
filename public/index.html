@@ -1,0 +1,26 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fridge Access</title><link rel="stylesheet" href="style.css"></head><body>
+<h1>🩸 Blood Fridge Access</h1>
+<nav><a href="donor.html">Donors</a><a href="hospital.html">Hospitals</a><a href="admin.html">Admin</a></nav>
+<section><h2>Get your 4-digit PIN</h2>
+<form id="f"><input name="name" placeholder="Full name" required>
+<input name="cnic" placeholder="CNIC (13 digits)" inputmode="numeric" maxlength="15" required>
+<input name="mobile" placeholder="Mobile number" inputmode="tel" required>
+<select name="bloodGroup" class="bg"></select>
+<details><summary>Withdraw a unit (optional)</summary>
+<input name="hospitalId" placeholder="Hospital ID e.g. h-central"><select name="takeGroup" class="bg"></select></details>
+<button>Generate PIN</button></form><div id="out" class="msg"></div><div id="pin" class="pin"></div></section>
+<p class="msg">Then tap your NFC card on the fridge reader, type the PIN on the keypad and press <b>*</b>. <b>0</b> clears.</p>
+<script src="app.js"></script><script>
+let timer;
+$("#f").addEventListener("submit", async (e) => {
+  e.preventDefault(); clearInterval(timer); $("#pin").textContent = "";
+  const d = form("#f"); if (!d.hospitalId) { delete d.hospitalId; delete d.takeGroup; }
+  try {
+    const r = await post("/api/issue", d); $("#pin").textContent = r.pin;
+    let left = r.expiresInSeconds;
+    timer = setInterval(() => { left--; if (left <= 0) { clearInterval(timer); $("#pin").textContent = ""; say($("#out"), "PIN expired.", false); }
+      else say($("#out"), `Valid for ${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`, true); }, 1000);
+  } catch (err) { say($("#out"), err.message, false); }
+});
+</script></body></html>

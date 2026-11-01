@@ -1,0 +1,29 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hospital Hub</title><link rel="stylesheet" href="style.css"></head><body>
+<h1>🏥 Hospitals & Labs</h1><nav><a href="index.html">Access</a><a href="admin.html">Admin</a></nav>
+<section><input id="key" type="password" placeholder="DEVICE_KEY"><div id="m" class="msg"></div></section>
+<div id="inv"></div>
+<section><h2>Add stock</h2><form id="a"><input name="hospitalId" placeholder="Hospital ID" required><input name="name" placeholder="Name (new sites)">
+<div class="row"><select name="group" class="bg"></select><input name="units" type="number" min="1" value="1"></div>
+<input name="expires" type="date" required><button>Add bags</button></form></section>
+<section><h2>Transfer request</h2><form id="t"><div class="row"><input name="from" placeholder="From ID" required><input name="to" placeholder="To ID" required></div>
+<div class="row"><select name="group" class="bg"></select><input name="units" type="number" min="1" value="1"></div><input name="note" placeholder="Note"><button>Request</button></form>
+<div class="wrap"><table id="tr"></table></div></section>
+<script src="app.js"></script><script>
+async function load() {
+  try {
+    const { hospitals } = await api("/api/inventory", {}, true);
+    $("#inv").innerHTML = hospitals.map((h) => `<section><h2>${esc(h.name)} <small>(${esc(h.id)})</small></h2><div class="wrap"><table>
+      <tr><th>Group</th><th>Units</th><th>≤7d</th><th>Expired</th></tr>${BG.map((g) => { const c = h.counts[g];
+      return `<tr><td>${g}</td><td>${c.total}</td><td class="${c.expiringSoon ? "warn" : ""}">${c.expiringSoon}</td><td class="${c.expired ? "err" : ""}">${c.expired}</td></tr>`; }).join("")}</table></div></section>`).join("");
+    const { transfers } = await api("/api/inventory?view=transfers", {}, true);
+    $("#tr").innerHTML = "<tr><th>Route</th><th>Need</th><th>Status</th></tr>" + transfers.map((x) => `<tr><td>${esc(x.from)}→${esc(x.to)}</td><td>${x.units}× ${esc(x.group)}</td>
+      <td>${esc(x.status)}${x.status === "pending" ? ` <button class="sm" onclick="res('${esc(x.id)}',true)">✓</button><button class="sm" onclick="res('${esc(x.id)}',false)">✕</button>` : ""}</td></tr>`).join("");
+    say($("#m"), "", true);
+  } catch (e) { say($("#m"), e.message, false); }
+}
+window.onKey = load;
+async function res(id, approve) { try { await post("/api/inventory", { action: "transfer_resolve", id, approve }, true); } catch (e) { alert(e.message); } load(); }
+$("#a").addEventListener("submit", async (e) => { e.preventDefault(); try { await post("/api/inventory", { action: "add_bags", ...form("#a") }, true); load(); } catch (er) { say($("#m"), er.message, false); } });
+$("#t").addEventListener("submit", async (e) => { e.preventDefault(); try { await post("/api/inventory", { action: "transfer_request", ...form("#t") }, true); load(); } catch (er) { say($("#m"), er.message, false); } });
+</script></body></html>

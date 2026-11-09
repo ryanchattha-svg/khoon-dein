@@ -5,6 +5,7 @@
 <section><h2>Register NFC card</h2><form id="f"><input name="uid" placeholder="Card UID (hex)" required>
 <input name="name" placeholder="Full name" required><input name="cnic" placeholder="CNIC" inputmode="numeric" required>
 <input name="mobile" placeholder="Mobile" required><select name="bloodGroup" class="bg"></select><button>Register</button></form><div id="m1" class="msg"></div></section>
+<section><h2>🎁 Grant donor credit</h2><form id="g"><input name="cnic" placeholder="Donor CNIC" required><div class="row"><input name="amount" type="number" min="1" value="1500" required><input name="reason" placeholder="Reason" value="Blood donation"></div><button>Grant credit</button></form><div id="m2" class="msg"></div></section>
 <section><h2>Cards</h2><div class="wrap"><table id="cards"></table></div></section>
 <section><h2>Deliveries</h2><div class="wrap"><table id="dl"></table></div></section>
 <section><h2>Audit log</h2><div class="wrap"><table id="logs"></table></div></section>
@@ -29,4 +30,6 @@ async function setSt(id, status) { await post("/api/deliveries", { action: "stat
 $("#seed").onclick = async () => { try { await post("/api/seed", {}, true); say($("#m0"), "Seeded", true); load(); } catch (e) { say($("#m0"), e.message, false); } };
 $("#f").addEventListener("submit", async (e) => { e.preventDefault();
   try { await post("/api/register", form("#f"), true); say($("#m1"), "Card registered", true); e.target.reset(); load(); } catch (er) { say($("#m1"), er.message, false); } });
+$("#g").addEventListener("submit", async (e) => { e.preventDefault();
+  try { const r = await post("/api/vouchers", { action: "grant", ...form("#g") }, true); say($("#m2"), "Granted. New balance: PKR " + r.credits.toLocaleString(), true); load(); } catch (er) { say($("#m2"), er.message, false); } });
 </script></body></html>

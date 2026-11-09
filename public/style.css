@@ -9,3 +9,17 @@ button{background:var(--red);color:#fff;border:0;cursor:pointer;font-weight:600}
 .pin{font:700 3rem monospace;letter-spacing:.4em;text-align:center;margin:10px 0}
 table{width:100%;border-collapse:collapse;font-size:.85rem}td,th{border-bottom:1px solid var(--bd);padding:5px;text-align:left}
 .warn{color:#c77700}.wrap{overflow-x:auto}
+body::before{content:"";position:fixed;top:12px;right:12px;width:48px;height:32px;background:url(pk-flag.svg) center/cover;border-radius:4px;box-shadow:0 1px 4px #0005;z-index:10}
+.mut{color:var(--mut);font-size:.9rem}button:disabled{opacity:.45;cursor:not-allowed}
+.balance{display:flex;justify-content:space-between;align-items:center;gap:8px;background:linear-gradient(135deg,var(--red),#7a0b1d);color:#fff;border-radius:12px;padding:14px 16px;margin:8px 0}
+.balance small{display:block;opacity:.85}.balance b{font-size:1.8rem}.balance .mut{color:#fff;opacity:.85}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:10px}
+.vtile{display:flex;flex-direction:column;align-items:center;text-align:center;gap:3px;padding:12px 8px;border-radius:12px;background:var(--bg);border:1px solid var(--bd);border-top:5px solid var(--c)}
+.vtile img,.ticket>img:first-child{width:72px;height:46px;object-fit:contain;background:#fff;border-radius:8px;padding:4px}
+.vtile small{color:var(--mut)}.tk-val{font-weight:800;color:var(--c)}.vtile button{width:100%;margin-top:4px}
+.ticket{position:relative;display:flex;align-items:center;gap:12px;padding:12px;margin:10px 0;border-radius:12px;background:var(--bg);border:2px dashed var(--c);overflow:hidden}
+.tk-body{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}.tk-body code{font:700 1.15rem monospace;letter-spacing:.08em}.tk-body small{color:var(--mut)}
+.ticket .qr{width:84px;height:84px;background:#fff;border-radius:6px}
+.stamp{position:absolute;right:8px;top:6px;font:700 .7rem system-ui;text-transform:uppercase;padding:2px 6px;border-radius:4px;background:#168a3e;color:#fff}
+.ticket.redeemed,.ticket.expired{opacity:.6}.ticket.redeemed .stamp{background:#666}.ticket.expired .stamp{background:var(--red)}
+h1{padding-right:64px}

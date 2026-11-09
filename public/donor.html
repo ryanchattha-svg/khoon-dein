@@ -1,6 +1,6 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Donor Portal</title><link rel="stylesheet" href="style.css"></head><body>
-<h1>❤️ Donor Portal</h1><nav><a href="index.html">Access</a><a href="hospital.html">Hospitals</a></nav>
+<h1>❤️ Donor Portal</h1><nav><a href="index.html">Access</a><a href="hospital.html">Hospitals</a><a href="#rewards">🎁 Rewards</a></nav>
 <section><h2>Register as donor</h2><form id="r"><input name="name" placeholder="Full name" required><input name="cnic" placeholder="CNIC" inputmode="numeric" required>
 <input name="mobile" placeholder="Mobile" required><select name="bloodGroup" class="bg"></select><input name="city" placeholder="City"><button>Register</button></form><div id="m1" class="msg"></div></section>
 <section><h2>Appointments & history</h2><form id="p"><input name="cnic" placeholder="CNIC" required><input name="mobile" placeholder="Mobile" required>
@@ -10,6 +10,10 @@
 <div class="row"><select name="bloodGroup" class="bg"></select><input name="units" type="number" min="1" max="10" value="1"></div>
 <textarea name="address" placeholder="Full delivery address" required></textarea><label><input type="checkbox" name="urgent" style="width:auto"> Urgent</label><button>Request delivery</button></form><div id="m3" class="msg"></div>
 <input id="tid" placeholder="Tracking ID"><button type="button" id="track">Track</button><div id="m4" class="msg"></div></section>
+<section id="rewards"><h2>🎁 Donor Rewards</h2><p class="msg">Every donation earns PKR credit (PKR 1,500, +500 for your first donation, +500 for rare groups). Spend it on food &amp; medicine vouchers. Merchants redeem codes at <a href="merchant.html">/merchant</a>.</p>
+<form id="w"><div class="row"><input name="cnic" placeholder="CNIC" required><input name="mobile" placeholder="Mobile" required></div><button>Open my wallet</button></form><div id="m5" class="msg"></div>
+<div id="wallet" hidden><div class="balance"><div><small>Available credit</small><b id="bal">PKR 0</b></div><div id="wname" class="mut"></div></div>
+<div id="cat" class="vgrid"></div><h2 style="margin-top:14px">My vouchers</h2><div id="mine"></div></div></section>
 <script src="app.js"></script><script>
 $("#r").addEventListener("submit", async (e) => { e.preventDefault(); try { await post("/api/donors", { action: "register", ...form("#r") }); say($("#m1"), "Registered. Thank you!", true); } catch (er) { say($("#m1"), er.message, false); } });
 const pf = () => form("#p");
@@ -19,4 +23,29 @@ $("#hist").onclick = async () => { try { const r = await post("/api/donors", { a
 $("#d").addEventListener("submit", async (e) => { e.preventDefault(); const f = form("#d"); f.urgent = $("#d [name=urgent]").checked;
   try { const r = await post("/api/deliveries", f); say($("#m3"), "Requested. Tracking ID: " + r.trackingId, true); } catch (er) { say($("#m3"), er.message, false); } });
 $("#track").onclick = async () => { try { const r = await api("/api/deliveries?id=" + encodeURIComponent($("#tid").value.trim().toUpperCase())); say($("#m4"), `Status: ${r.status}`, true); } catch (er) { say($("#m4"), er.message, false); } };
+// ---- Rewards ----
+const pkr = (n) => "PKR " + Number(n).toLocaleString("en-PK");
+let CAT = [], who = null;
+function ticket(v) {
+  return `<div class="ticket ${v.status}" style="--c:${esc(v.color)}"><img src="${esc(v.logo)}" alt="${esc(v.brand)}">
+  <div class="tk-body"><b>${esc(v.brand)} — ${esc(v.title)}</b><span class="tk-val">${pkr(v.value)}</span>
+  <code>${esc(v.code)}</code><small>${v.status === "active" ? "Valid till " + new Date(v.expiresAt).toLocaleDateString() : v.status === "redeemed" ? "Redeemed " + new Date(v.redeemedAt).toLocaleString() : "Expired"}</small></div>
+  <img class="qr" alt="QR" src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&margin=4&data=${encodeURIComponent(v.code)}"><span class="stamp">${esc(v.status)}</span></div>`;
+}
+async function loadWallet() {
+  const r = await post("/api/vouchers", { action: "wallet", ...who });
+  $("#wallet").hidden = false; $("#bal").textContent = pkr(r.credits);
+  $("#wname").textContent = `${r.name} · ${r.donations} donation(s)`;
+  if (!CAT.length) CAT = (await api("/api/vouchers")).catalog;
+  $("#cat").innerHTML = CAT.map((c) => `<div class="vtile" style="--c:${esc(c.color)}"><img src="${esc(c.logo)}" alt="${esc(c.brand)}">
+    <b>${esc(c.title)}</b><small>${esc(c.brand)}</small><span class="tk-val">${pkr(c.value)}</span>
+    <button class="sm" ${r.credits < c.value ? "disabled" : ""} onclick="claim('${esc(c.id)}')">Claim</button></div>`).join("");
+  $("#mine").innerHTML = r.vouchers.length ? r.vouchers.map(ticket).join("") : '<p class="msg">No vouchers yet.</p>';
+}
+$("#w").addEventListener("submit", async (e) => { e.preventDefault(); who = form("#w");
+  try { await loadWallet(); say($("#m5"), "", true); } catch (er) { $("#wallet").hidden = true; say($("#m5"), er.message, false); } });
+async function claim(itemId) {
+  try { const r = await post("/api/vouchers", { action: "claim", itemId, ...who }); say($("#m5"), `🎉 Claimed! Your code: ${r.voucher.code}`, true); await loadWallet(); }
+  catch (er) { say($("#m5"), er.message, false); }
+}
 </script></body></html>

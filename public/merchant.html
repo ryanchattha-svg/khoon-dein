@@ -1,0 +1,23 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Merchant Redeem</title><link rel="stylesheet" href="style.css"></head><body>
+<h1>🏪 Merchant Voucher Redeem</h1><nav><a href="donor.html">Donors</a><a href="index.html">Access</a></nav>
+<section><h2>Scan or enter voucher code</h2><p class="msg">For KFC, McDonald's, Cheezious and partner pharmacies (demo).</p>
+<form id="c"><input name="code" placeholder="BP-KFC-1A2B3C" style="text-transform:uppercase" required><input name="merchant" placeholder="Branch / cashier (optional)">
+<div class="row"><button type="button" id="chk">Check</button><button id="red">Redeem</button></div></form>
+<div id="m" class="msg"></div><div id="v"></div></section>
+<script src="app.js"></script><script>
+const pkr = (n) => "PKR " + Number(n).toLocaleString("en-PK");
+function show(v) {
+  $("#v").innerHTML = `<div class="ticket ${v.status}" style="--c:${esc(v.color)}"><img src="${esc(v.logo)}" alt="${esc(v.brand)}">
+  <div class="tk-body"><b>${esc(v.brand)} — ${esc(v.title)}</b><span class="tk-val">${pkr(v.value)}</span><code>${esc(v.code)}</code>
+  <small>${v.status === "active" ? "Valid till " + new Date(v.expiresAt).toLocaleDateString() : v.status === "redeemed" ? "Redeemed " + new Date(v.redeemedAt).toLocaleString() : "Expired"}</small></div><span class="stamp">${esc(v.status)}</span></div>`;
+}
+async function go(action) {
+  $("#v").innerHTML = "";
+  try { const r = await post("/api/vouchers", { action, ...form("#c") }); show(r.voucher);
+    say($("#m"), action === "redeem" ? "✅ Redeemed — give the customer their order." : r.voucher.status === "active" ? "Valid voucher." : "Voucher is " + r.voucher.status + ".", r.voucher.status === "active" || action === "redeem");
+  } catch (er) { say($("#m"), er.message, false); }
+}
+$("#chk").onclick = () => go("check");
+$("#c").addEventListener("submit", (e) => { e.preventDefault(); go("redeem"); });
+</script></body></html>

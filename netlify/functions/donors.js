@@ -26,13 +26,17 @@ export default async (req) => {
     const a = donor.appointments.find((x) => x.id === b.appointmentId && x.status === "booked");
     if (!a) return json({ error: "No such booked appointment" }, 404);
     a.status = "completed";
+    // Reward credit (PKR) for vouchers: base + first-donation and rare-group bonuses.
+    const earned = 1500 + (donor.donations.length === 0 ? 500 : 0) + (["O-", "AB-", "A-", "B-"].includes(donor.bloodGroup) ? 500 : 0);
+    donor.credits = (donor.credits || 0) + earned;
+    (donor.creditLog ||= []).push({ ts: Date.now(), amount: earned, reason: "Blood donation" });
     donor.donations.push({ date: new Date().toISOString().slice(0, 10), hospitalId: a.hospitalId, group: donor.bloodGroup });
     await donors.setJSON(cnic, donor);
     const inv = store("inventory");
     const h = (await inv.get(a.hospitalId, { type: "json" })) || { id: a.hospitalId, name: a.hospitalId, bags: [] };
     h.bags.push({ id: randomUUID().slice(0, 8), group: donor.bloodGroup, expires: new Date(Date.now() + 35 * 864e5).toISOString().slice(0, 10), added: new Date().toISOString().slice(0, 10) });
     await inv.setJSON(h.id, h); await log("donation_completed", { hospitalId: a.hospitalId, group: donor.bloodGroup });
-    return json({ ok: true });
+    return json({ ok: true, earned });
   }
 
   if (!donor || digits(donor.mobile) !== mobile) return json({ error: "Donor not found or mobile mismatch" }, 403);
